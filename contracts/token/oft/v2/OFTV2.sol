@@ -2,21 +2,23 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "./BaseOFTV2.sol";
 
 /// @title OFT V1.2 Contract
 /// @notice This contract is version 1.2 of the OFT Standard, enabling cross-chain token transfers between EVM and non-EVM contracts.
 /// @dev This contract is only compatible with Endpoint V1.
-contract OFTV2 is BaseOFTV2, ERC20 {
-    uint internal immutable ld2sdRate;
+contract OFTV2 is BaseOFTV2, ERC20Upgradeable {
+    uint internal ld2sdRate;
 
-    constructor(
+    function __OFTV2_init(
         string memory _name,
         string memory _symbol,
         uint8 _sharedDecimals,
         address _lzEndpoint
-    ) ERC20(_name, _symbol) BaseOFTV2(_sharedDecimals, _lzEndpoint) {
+    ) internal onlyInitializing {
+        __ERC20_init(_name, _symbol);
+        __BaseOFTV2_init(_sharedDecimals, _lzEndpoint);
         uint8 decimals = decimals();
         require(_sharedDecimals <= decimals, "OFT: sharedDecimals must be <= decimals");
         ld2sdRate = 10**(decimals - _sharedDecimals);
